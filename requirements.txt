@@ -1,0 +1,7 @@
+rembg
+opencv-contrib-python-headless
+numpy
+Pillow
+streamlit
+onnxruntime
+pymatting
