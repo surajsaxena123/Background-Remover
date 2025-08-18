@@ -1,4 +1,3 @@
-
 import io
 from typing import Optional
 
@@ -9,11 +8,28 @@ from rembg import remove, new_session
 from pymatting.alpha import estimate_alpha_cf
 
 
+def generate_mask(
+    image: np.ndarray,
+    session: Optional[object] = None,
+    model: str = "birefnet-general",
+) -> np.ndarray:
+    """Generate a foreground mask for the given image using rembg.
 
-def generate_mask(image: np.ndarray, session: Optional[object] = None) -> np.ndarray:
-    """Generate a foreground mask for the given image using rembg."""
+    Parameters
+    ----------
+    image:
+        BGR image to segment.
+    session:
+        Optional rembg session to reuse for efficiency.
+    model:
+        Name of the rembg model. Defaults to ``"birefnet-general"`` for
+        high-fidelity hair and face boundaries.
+    """
     if session is None:
-        session = new_session()
+        try:
+            session = new_session(model)
+        except Exception:
+            session = new_session()
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     pil_image = Image.fromarray(rgb_image)
     mask_image = remove(
@@ -25,7 +41,6 @@ def generate_mask(image: np.ndarray, session: Optional[object] = None) -> np.nda
         alpha_matting_background_threshold=10,
     )
 
-    mask_image = remove(pil_image, session=session, only_mask=True)
     # rembg returns a PIL Image when given a PIL Image input
     mask = np.array(mask_image.convert("L"))
     return mask
@@ -66,9 +81,13 @@ def apply_mask(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
     return cv2.cvtColor((rgba * 255).astype(np.uint8), cv2.COLOR_RGBA2BGRA)
 
 
-def remove_background(image: np.ndarray, session: Optional[object] = None) -> np.ndarray:
+def remove_background(
+    image: np.ndarray,
+    session: Optional[object] = None,
+    model: str = "birefnet-general",
+) -> np.ndarray:
     """Full pipeline to remove background from an image."""
-    mask = generate_mask(image, session=session)
+    mask = generate_mask(image, session=session, model=model)
     mask = refine_mask(image, mask)
     return apply_mask(image, mask)
 
@@ -79,12 +98,17 @@ def main():
     parser = argparse.ArgumentParser(description="Remove image background with post-processing")
     parser.add_argument("input_image", help="Path to the input image")
     parser.add_argument("output_image", help="Path to save the processed image")
+    parser.add_argument(
+        "--model",
+        default="birefnet-general",
+        help="rembg model name (e.g. 'birefnet-general', 'u2net')",
+    )
     args = parser.parse_args()
 
     image = cv2.imread(args.input_image, cv2.IMREAD_COLOR)
     if image is None:
         raise FileNotFoundError(args.input_image)
-    result = remove_background(image)
+    result = remove_background(image, model=args.model)
     cv2.imwrite(args.output_image, result)
 
 
