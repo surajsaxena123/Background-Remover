@@ -5,7 +5,6 @@ import numpy as np
 import streamlit as st
 from PIL import Image
 from rembg import new_session
-
 from src.processing import remove_background
 
 
@@ -26,7 +25,6 @@ def main() -> None:
         result_bgra = remove_background(image_bgr, session=session, model=model)
         result_rgba = cv2.cvtColor(result_bgra, cv2.COLOR_BGRA2RGBA)
         st.image(result_rgba, caption="Processed Image", use_container_width=True)
-
         buffer = io.BytesIO()
         Image.fromarray(result_rgba).save(buffer, format="PNG")
         st.download_button(

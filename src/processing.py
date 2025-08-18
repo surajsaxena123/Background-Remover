@@ -1,3 +1,4 @@
+import io
 from typing import Optional
 
 import cv2
@@ -39,6 +40,7 @@ def generate_mask(
         alpha_matting_foreground_threshold=240,
         alpha_matting_background_threshold=10,
     )
+
     # rembg returns a PIL Image when given a PIL Image input
     mask = np.array(mask_image.convert("L"))
     return mask
