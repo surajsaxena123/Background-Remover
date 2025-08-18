@@ -17,7 +17,8 @@ def main() -> None:
         image_bgr = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
         result_bgra = remove_background(image_bgr)
         result_rgba = cv2.cvtColor(result_bgra, cv2.COLOR_BGRA2RGBA)
-        st.image(result_rgba, caption="Processed Image", use_container_width=True)
+        st.image(result_rgba, caption="Processed Image", use_column_width=True)
+
 
         buffer = io.BytesIO()
         Image.fromarray(result_rgba).save(buffer, format="PNG")

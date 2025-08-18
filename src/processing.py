@@ -1,3 +1,5 @@
+
+import io
 from typing import Optional
 
 import cv2
@@ -5,6 +7,7 @@ import numpy as np
 from PIL import Image
 from rembg import remove, new_session
 from pymatting.alpha import estimate_alpha_cf
+
 
 
 def generate_mask(image: np.ndarray, session: Optional[object] = None) -> np.ndarray:
@@ -21,6 +24,8 @@ def generate_mask(image: np.ndarray, session: Optional[object] = None) -> np.nda
         alpha_matting_foreground_threshold=240,
         alpha_matting_background_threshold=10,
     )
+
+    mask_image = remove(pil_image, session=session, only_mask=True)
     # rembg returns a PIL Image when given a PIL Image input
     mask = np.array(mask_image.convert("L"))
     return mask
