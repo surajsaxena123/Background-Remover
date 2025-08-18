@@ -1,3 +1,4 @@
+
 import io
 from typing import Optional
 
@@ -5,6 +6,8 @@ import cv2
 import numpy as np
 from PIL import Image
 from rembg import remove, new_session
+from pymatting.alpha import estimate_alpha_cf
+
 
 
 def generate_mask(image: np.ndarray, session: Optional[object] = None) -> np.ndarray:
@@ -13,6 +16,15 @@ def generate_mask(image: np.ndarray, session: Optional[object] = None) -> np.nda
         session = new_session()
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     pil_image = Image.fromarray(rgb_image)
+    mask_image = remove(
+        pil_image,
+        session=session,
+        only_mask=True,
+        alpha_matting=True,
+        alpha_matting_foreground_threshold=240,
+        alpha_matting_background_threshold=10,
+    )
+
     mask_image = remove(pil_image, session=session, only_mask=True)
     # rembg returns a PIL Image when given a PIL Image input
     mask = np.array(mask_image.convert("L"))
@@ -40,10 +52,18 @@ def refine_mask(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
 
 
 def apply_mask(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
-    """Apply a binary mask to an image and return an image with alpha channel."""
-    bgra = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
-    bgra[:, :, 3] = mask
-    return bgra
+    """Apply closed-form alpha matting for high-precision edges."""
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float64) / 255.0
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    fg = cv2.erode(mask, kernel, iterations=5)
+    bg = cv2.dilate(mask, kernel, iterations=5)
+    trimap = np.full(mask.shape, 128, dtype=np.uint8)
+    trimap[fg > 200] = 255
+    trimap[bg < 55] = 0
+    alpha = estimate_alpha_cf(image_rgb, trimap / 255.0)
+    comp = image_rgb * alpha[..., None]
+    rgba = np.dstack((comp, alpha))
+    return cv2.cvtColor((rgba * 255).astype(np.uint8), cv2.COLOR_RGBA2BGRA)
 
 
 def remove_background(image: np.ndarray, session: Optional[object] = None) -> np.ndarray:

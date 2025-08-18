@@ -1,11 +1,11 @@
 # Background Remover
 
-This repository demonstrates a complete pipeline for removing image backgrounds.  
-The default segmentation is produced with [rembg](https://github.com/danielgatis/rembg) and then refined using a set of morphological operations and an optional guided filter to eliminate residual artefacts around hair and other fine details.
+This repository demonstrates a complete pipeline for removing image backgrounds.
+An initial foreground mask is produced with [rembg](https://github.com/danielgatis/rembg) and then refined using closed-form alpha matting (via [pymatting](https://github.com/pymatting/pymatting)), morphological operations and an optional guided filter to eliminate residual artefacts around hair and other fine details, yielding high-precision results.
 
 ## Features
 - Automatic foreground mask generation.
-- Post-processing to clean edges and remove background traces.
+- Closed-form matting and post-processing to clean edges and remove background traces with high fidelity.
 - Streamlit application for interactive use and downloading results.
 - Example data set with input images, raw model masks and the expected final output.
 - GitHub Actions workflow that installs dependencies and runs a sample processing task.

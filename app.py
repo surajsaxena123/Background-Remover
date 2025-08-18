@@ -19,6 +19,7 @@ def main() -> None:
         result_rgba = cv2.cvtColor(result_bgra, cv2.COLOR_BGRA2RGBA)
         st.image(result_rgba, caption="Processed Image", use_column_width=True)
 
+
         buffer = io.BytesIO()
         Image.fromarray(result_rgba).save(buffer, format="PNG")
         st.download_button(
