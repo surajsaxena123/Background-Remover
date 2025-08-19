@@ -1,0 +1,76 @@
+# Precision Background Remover - Advanced Docker Image
+# Includes GPU support and precision-grade features
+
+FROM nvidia/cuda:11.8-devel-ubuntu20.04 as gpu-base
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV DEBIAN_FRONTEND=noninteractive
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3.10-dev \
+    python3-pip \
+    build-essential \
+    cmake \
+    pkg-config \
+    libopencv-dev \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libgeos-dev \
+    libproj-dev \
+    libgdal-dev \
+    wget \
+    curl \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set python3.10 as default python
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt requirements_simple.txt ./
+
+# Install Python dependencies with GPU support
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    # Install PyTorch with CUDA support
+    pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 && \
+    # Install NumPy with compatibility
+    pip install --no-cache-dir "numpy<2.0.0" && \
+    # Install precision-grade requirements
+    pip install --no-cache-dir -r requirements.txt && \
+    # Install additional GPU-accelerated libraries
+    pip install --no-cache-dir ultralytics segment-anything-hq && \
+    pip cache purge
+
+# Copy application code
+COPY . .
+
+# Create directories
+RUN mkdir -p /app/uploads /app/outputs /app/models
+
+# Set permissions
+RUN chmod +x demo_working.py && \
+    chmod -R 755 /app/src
+
+# Health check with GPU verification
+HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=3 \
+    CMD python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}'); import cv2, numpy as np; print('Health check passed')" || exit 1
+
+EXPOSE 8501
+
+# Advanced interface with precision-grade features
+CMD ["streamlit", "run", "app.py", "--server.address", "0.0.0.0", "--server.port", "8501", "--server.headless", "true"]
