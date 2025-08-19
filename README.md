@@ -255,7 +255,7 @@ For production applications, ensure:
 - [Docker Guide](docs/DOCKER_GUIDE.md) - Container deployment options
 - [Google Cloud Platform (GCP) Deployment](docs/GCP_DEPLOYMENT.md) - Complete GCP deployment guide
 - [Microsoft Azure Deployment](docs/AZURE_DEPLOYMENT.md) - Complete Azure deployment guide
-- [AWS Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Production deployment on AWS
+- [AWS Deployment Guide](docs/AWS_DEPLOYMENT.md) - Production deployment on AWS
 
 ### Platform-Specific Guides
 - [Mac Compatibility](docs/MAC_COMPATIBILITY.md) - Mac-specific setup and optimizations

@@ -4,13 +4,13 @@
 
 Your Precision Background Remover is now **fully optimized for Mac** with comprehensive support for both Intel and Apple Silicon architectures.
 
-### 🚀 Detected Your System
-Based on the system detection:
-- **Architecture**: Apple Silicon (ARM64) 
-- **Memory**: 36.0 GB (Excellent for large image processing)
-- **CPU Cores**: 14 (High-performance processing capable)
-- **Metal Performance Shaders**: ✅ Available
-- **MPS Support**: ✅ Available for GPU acceleration
+### 🚀 System Detection
+The system will automatically detect your Mac configuration:
+- **Architecture**: Intel (x86_64) or Apple Silicon (ARM64) 
+- **Memory**: Available RAM (Recommended: 8GB+ for optimal performance)
+- **CPU Cores**: Available cores (Automatically utilized for parallel processing)
+- **Metal Performance Shaders**: Detected automatically
+- **MPS Support**: Available on Apple Silicon Macs for GPU acceleration
 
 ## 🎯 Mac-Specific Optimizations Implemented
 
@@ -35,7 +35,7 @@ Based on the system detection:
 
 ## 📊 Performance Benchmarks on Mac
 
-### Your Apple Silicon Mac (36GB RAM, 14 cores)
+### Apple Silicon Mac Performance Benchmarks
 | Feature | Processing Time | Memory Usage | Quality Score |
 |---------|----------------|--------------|---------------|
 | Standard Processing | 2-3 seconds | 2-4GB | 0.85-0.95 |
@@ -44,10 +44,10 @@ Based on the system detection:
 | Large Images (>4K) | 8-15 seconds | 12-24GB | 0.92-0.99 |
 
 ### Memory Optimization Recommendations
-With your 36GB RAM:
-- **Recommended processing limit**: 28.8GB (80% of total)
-- **Concurrent processing**: Support for multiple large images
-- **Batch processing**: Optimal for medical imaging workflows
+For optimal performance:
+- **Recommended processing limit**: 80% of available RAM
+- **Concurrent processing**: Depends on available memory
+- **Batch processing**: Optimal for systems with sufficient RAM
 - **Memory efficiency**: Automatic tiling for ultra-large images
 
 ## 🛠️ Installation Options
@@ -70,10 +70,10 @@ chmod +x install_mac.sh
 ### Option 2: Manual Installation
 ```bash
 # Install dependencies for Apple Silicon
-pip install -r requirements_simple.txt
+pip install -r requirements.txt
 
 # Test Mac optimizations
-python demo_working.py --analyze-only input.jpg output.png
+python main.py input.jpg --analyze-only
 ```
 
 ### Option 3: Docker (Cross-platform)
@@ -119,20 +119,20 @@ print(f"Recommended limit: {memory['recommended_limit_gb']}GB")
 
 ### 1. **Enhanced Web Interface**
 ```bash
-# Launch optimized for your Apple Silicon Mac
-streamlit run app_simple.py
+# Launch optimized for your Mac
+streamlit run app.py
 
 # Features automatically enabled:
-# ✅ MPS GPU acceleration
-# ✅ 36GB memory optimization
-# ✅ 14-core parallel processing
-# ✅ Metal shader acceleration
+# ✅ MPS GPU acceleration (Apple Silicon)
+# ✅ Memory optimization based on available RAM
+# ✅ Multi-core parallel processing
+# ✅ Metal shader acceleration (when available)
 ```
 
 ### 2. **Command Line Processing**
 ```bash
 # Process with Mac optimizations
-python demo_working.py input.jpg output.png
+python main.py input.jpg output.png
 
 # Expected performance on your system:
 # • Processing time: 2-5 seconds
@@ -143,7 +143,7 @@ python demo_working.py input.jpg output.png
 ### 3. **Quality Analysis**
 ```bash
 # Analyze image quality with Mac system info
-python demo_working.py input.jpg output.png --analyze-only
+python main.py input.jpg --analyze-only
 
 # Output includes:
 # • Mac architecture detection
@@ -200,7 +200,7 @@ python demo_working.py input.jpg output.png --analyze-only
 **1. Apple Silicon Compatibility**
 ```bash
 # If you get architecture errors:
-arch -arm64 pip install -r requirements_simple.txt
+arch -arm64 pip install -r requirements.txt
 
 # Force native ARM64 mode:
 export PYTORCH_ENABLE_MPS_FALLBACK=1
@@ -209,7 +209,7 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 **2. Memory Pressure on Older Macs**
 ```bash
 # For Macs with <16GB RAM:
-# Enable memory optimization in app_simple.py
+# Enable memory optimization in app.py
 # Process smaller images or use tiling
 ```
 
@@ -231,12 +231,12 @@ source ~/.zprofile
 
 ## 📈 Performance Optimization Tips
 
-### For Your Apple Silicon Mac (36GB RAM)
+### For Apple Silicon Macs
 1. **Enable GPU acceleration**: MPS automatically detected and enabled
-2. **Optimize memory usage**: 28.8GB available for processing
-3. **Parallel processing**: 14 cores automatically utilized
+2. **Optimize memory usage**: Automatically manages available RAM
+3. **Parallel processing**: All available cores automatically utilized
 4. **Large image support**: Tiling enabled for >4K images
-5. **Batch processing**: Multiple images can be processed simultaneously
+5. **Batch processing**: Multiple images can be processed based on available resources
 
 ### General Mac Optimization
 1. **Close unnecessary apps**: Free up memory for processing
@@ -250,11 +250,11 @@ When running on your Mac, you should see:
 ```
 🍎 Mac System Detection:
 platform: Darwin
-machine: arm64
-is_apple_silicon: True
-supports_mps: True
-memory_gb: 36.0
-cpu_count: 14
+machine: [arm64/x86_64]
+is_apple_silicon: [True/False]
+supports_mps: [True/False]
+memory_gb: [Available RAM]
+cpu_count: [Available cores]
 
 ✅ Mac optimizations loaded successfully
 ✅ Metal Performance Shaders (MPS) available

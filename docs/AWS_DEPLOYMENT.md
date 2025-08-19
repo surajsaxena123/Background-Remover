@@ -143,7 +143,7 @@ from io import BytesIO
 import logging
 
 # Import our precision background remover
-from demo_working import remove_background_enhanced
+from src.core.processing import remove_background_precision_grade
 
 s3_client = boto3.client('s3')
 logger = logging.getLogger()
@@ -169,7 +169,7 @@ def process_image(event, context):
             }
         
         # Process with precision background removal
-        result, metrics = remove_background_enhanced(image, model='birefnet-general')
+        result, metrics = remove_background_precision_grade(image, model='birefnet-general')
         
         if result is None:
             return {
@@ -373,8 +373,8 @@ class PrecisionBackgroundRemover:
             image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             
             # Process with precision background removal
-            from demo_working import remove_background_enhanced
-            result, metrics = remove_background_enhanced(image)
+            from src.core.processing import remove_background_precision_grade
+            result, metrics = remove_background_precision_grade(image)
             
             # Encode result
             _, buffer = cv2.imencode('.png', result)
@@ -422,7 +422,6 @@ def create_model_package():
     with tarfile.open("model.tar.gz", "w:gz") as tar:
         tar.add("model.py")
         tar.add("requirements.txt")
-        tar.add("demo_working.py")
         tar.add("src/")
 
 # Upload to S3

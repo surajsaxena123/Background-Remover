@@ -505,7 +505,7 @@ Optional Dependencies:
 ---
 
 **Document Version**: 1.0
-**Last Updated**: August 2025
+**Last Updated**: 2024
 **Authors**: Precision Background Remover Development Team
 **Classification**: Technical Whitepaper
 
