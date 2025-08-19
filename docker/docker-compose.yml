@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Simple Background Remover (CPU-based, stable)
+  background-remover-simple:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bg-remover-simple
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data/input:/app/uploads:ro
+      - ./data/output:/app/outputs
+      - bg-remover-models:/app/models
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_ENABLE_CORS=false
+      - STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Advanced Background Remover (GPU-enabled, precision-grade)
+  background-remover-advanced:
+    build:
+      context: .
+      dockerfile: Dockerfile.advanced
+    container_name: bg-remover-advanced
+    ports:
+      - "8502:8501"
+    volumes:
+      - ./data/input:/app/uploads:ro
+      - ./data/output:/app/outputs
+      - bg-remover-models:/app/models
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_ENABLE_CORS=false
+      - STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    profiles:
+      - gpu
+
+  # CLI Processing Service
+  background-remover-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bg-remover-cli
+    volumes:
+      - ./data/input:/app/input:ro
+      - ./data/output:/app/output
+      - bg-remover-models:/app/models
+    working_dir: /app
+    entrypoint: ["python", "demo_working.py"]
+    profiles:
+      - cli
+
+volumes:
+  bg-remover-models:
+    driver: local
